@@ -1,14 +1,21 @@
 :root {
-  --bg: #16171a;
-  --surface: #1f2126;
-  --surface-2: #2a2d33;
-  --border: #383b42;
-  --text: #f2f0e9;
-  --text-dim: #a3a7b0;
-  --accent: #c9a24a;
+  /* Luceed-inspired POS palette: steel-navy chrome, teal work surfaces,
+     warm orange accent bar — matches the reference till the owner asked
+     the desktop layout to copy. */
+  --bg: #14212c;
+  --surface: #1c2e3c;
+  --surface-2: #24384a;
+  --border: #3a5568;
+  --text: #eef5f8;
+  --text-dim: #8fadbc;
+  --accent: #e8935f;
   --accent-text: #1a1a1a;
   --green: #3ba55c;
   --red: #d9534f;
+  --luceed-teal: #4d8fa6;
+  --luceed-teal-dark: #3d7488;
+  --luceed-navy-btn: #16232f;
+  --luceed-grid-line: rgba(255, 255, 255, 0.14);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   color-scheme: dark;
 }
@@ -102,6 +109,43 @@ input {
   padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* The POS order screen uses the full terminal width, like the reference
+   layout — it isn't a centered document, it's a work surface. */
+.order-page {
+  max-width: none;
+  padding: 0 16px 16px;
+}
+
+.pos-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  margin: 0 -16px 12px;
+  padding: 0 16px;
+  background: linear-gradient(90deg, #e8935f 0%, #d97b5a 35%, #4d7f8f 75%, #3d7488 100%);
+  color: white;
+}
+
+.pos-topbar-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.pos-topbar-brand {
+  margin-left: auto;
+  font-weight: 800;
+  letter-spacing: 2px;
+  font-size: 14px;
 }
 
 .page-header {
@@ -280,85 +324,107 @@ input {
      force this whole column (and the page) wider than the viewport instead
      of scrolling within its own overflow-x:auto. */
   min-width: 0;
+  background: var(--luceed-teal);
+  border-radius: 8px;
+  padding: 10px;
 }
 
 .category-tabs {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   overflow-x: auto;
-  padding-bottom: 8px;
-  margin-bottom: 10px;
+  padding: 0 2px 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .category-tab {
   flex: none;
-  padding: 8px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-dim);
-  font-size: 13px;
+  padding: 8px 22px;
+  border-radius: 6px 6px 0 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .category-tab.active {
-  background: var(--surface-2);
-  color: var(--text);
-  border-color: var(--accent);
+  background: var(--luceed-teal-dark);
+  color: white;
+  box-shadow: inset 0 -3px 0 var(--accent);
 }
 
 .menu-item-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
+  gap: 2px;
+  background: var(--luceed-grid-line);
+  border: 1px solid var(--luceed-grid-line);
+}
+
+@media (min-width: 900px) {
+  .menu-item-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
 .menu-item-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--luceed-navy-btn);
   display: flex;
   flex-direction: column;
-  min-height: 80px;
+  min-height: 74px;
   overflow: hidden;
+  position: relative;
 }
 
 .menu-item-main {
   background: none;
   border: none;
-  padding: 12px;
+  /* Extra right padding keeps wrapped two-line names clear of the
+     absolutely-positioned customize badge in the top-right corner. */
+  padding: 10px 28px 10px 8px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 6px;
-  text-align: left;
+  text-align: center;
   flex: 1;
-  color: inherit;
+  color: var(--text);
 }
 
 .menu-item-name {
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  line-height: 1.25;
 }
 
 .menu-item-variant {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-dim);
+  text-transform: none;
+  font-weight: 500;
 }
 
 .menu-item-price {
-  margin-top: auto;
   font-weight: 700;
-  color: var(--accent);
+  color: #ffd28a;
+  font-size: 12px;
 }
 
 .menu-item-customize {
-  background: var(--surface-2);
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(255, 255, 255, 0.14);
   border: none;
-  border-top: 1px solid var(--border);
-  color: var(--accent);
+  border-radius: 5px;
+  color: var(--text);
   font-size: 12px;
-  font-weight: 600;
-  padding: 6px;
+  line-height: 1;
+  padding: 4px 5px;
 }
 
 /* Phone screens: the ordering options were too small to read/tap
@@ -382,7 +448,7 @@ input {
   }
 
   .menu-item-main {
-    padding: 14px;
+    padding: 14px 32px 14px 14px;
     gap: 8px;
   }
 
@@ -395,10 +461,10 @@ input {
 /* Cart */
 
 .cart-panel {
-  background: var(--surface);
+  background: var(--luceed-navy-btn);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 8px;
+  padding: 12px;
   height: fit-content;
   position: sticky;
   top: 16px;
@@ -420,9 +486,27 @@ input {
   }
 }
 
-.cart-panel h2 {
-  font-size: 16px;
-  margin: 0 0 12px;
+.cart-table-header {
+  display: grid;
+  grid-template-columns: 20px 1fr 44px 68px;
+  gap: 8px;
+  padding: 6px 4px;
+  margin-bottom: 4px;
+  background: var(--luceed-teal-dark);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
+}
+
+.cart-col-qty {
+  text-align: center;
+}
+
+.cart-col-amount {
+  text-align: right;
 }
 
 .cart-empty {
@@ -461,7 +545,8 @@ input {
 }
 
 .cart-item-main {
-  display: flex;
+  display: grid;
+  grid-template-columns: 20px 1fr 44px 68px;
   align-items: center;
   gap: 8px;
   font-size: 14px;
@@ -475,7 +560,7 @@ input {
 }
 
 .cart-item-name {
-  flex: 1;
+  min-width: 0;
 }
 
 .cart-item-mods {
@@ -499,6 +584,37 @@ input {
   margin-top: 4px;
 }
 
+.cart-summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--luceed-teal);
+  color: white;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+
+.cart-summary-table {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.cart-summary-waiter {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.15);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.cart-summary-total {
+  margin-left: auto;
+  font-weight: 800;
+  font-size: 20px;
+}
+
 .cart-total {
   display: flex;
   justify-content: space-between;
@@ -519,6 +635,21 @@ input {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+@media (min-width: 900px) {
+  /* On the desktop terminal, action buttons sit as a compact function-key
+     grid (matching the reference) rather than full-width stacked bars. */
+  .cart-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cart-actions .btn-lg {
+    width: auto;
+    padding: 12px;
+    font-size: 14px;
+  }
 }
 
 /* Modal */

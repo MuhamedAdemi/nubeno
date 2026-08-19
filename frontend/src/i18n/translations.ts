@@ -78,6 +78,10 @@ export const translations = {
     en: "Move the whole order to this table?",
     sq: "Barte krejt porosinë te kjo tavolinë?",
   },
+  food: { hr: "Hrana", en: "Food", sq: "Ushqim" },
+  drinks: { hr: "Piće", en: "Drinks", sq: "Pije" },
+  item_name_column: { hr: "Naziv artikla", en: "Item", sq: "Emri i artikullit" },
+  amount: { hr: "Iznos", en: "Amount", sq: "Shuma" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

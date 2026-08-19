@@ -18,6 +18,10 @@ export function TableGridPage() {
 
   return (
     <div className="page">
+      <div className="pos-topbar">
+        <span className="pos-topbar-icon">N</span>
+        <span className="pos-topbar-brand">NUBENO</span>
+      </div>
       <header className="page-header">
         <div className="brand">nubeno</div>
         <div className="header-actions">

@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { MenuItem, OrderItem } from "../api/types";
-import { itemName } from "../api/types";
 import { useLang } from "../i18n/LangContext";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { MenuItemCard } from "../components/MenuItemCard";
@@ -22,11 +21,11 @@ type ModalState =
 
 export function OrderPage() {
   const { tableId } = useParams();
-  const { lang, t } = useLang();
+  const { t } = useLang();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [group, setGroup] = useState<"FOOD" | "DRINK">("FOOD");
   const [modalState, setModalState] = useState<ModalState>(null);
   const [draftItems, setDraftItems] = useState<DraftItem[]>([]);
   const [showTransfer, setShowTransfer] = useState(false);
@@ -44,7 +43,11 @@ export function OrderPage() {
   });
 
   const categories = menu ?? [];
-  const activeCategory = categories.find((c) => c.id === categoryId) ?? categories[0];
+  // The reference POS layout uses just two top-level tabs (Food/Drinks) with
+  // every item in that group shown together in one grid, ordered by type
+  // (pizzas, then salads, then the rest) — not a tab per category. Category
+  // order + item order from the API already produces that grouping.
+  const groupItems = categories.filter((c) => c.group === group).flatMap((c) => c.items);
 
   function invalidateOrder() {
     queryClient.invalidateQueries({ queryKey: ["order", table?.open_order_id] });
@@ -184,6 +187,10 @@ export function OrderPage() {
 
   return (
     <div className="page order-page">
+      <div className="pos-topbar">
+        <span className="pos-topbar-icon">N</span>
+        <span className="pos-topbar-brand">NUBENO</span>
+      </div>
       <header className="page-header">
         <button className="btn btn-ghost" onClick={() => navigate("/")}>
           ← {t("back_to_tables")}
@@ -230,19 +237,22 @@ export function OrderPage() {
 
         <main className="menu-browser">
           <div className="category-tabs">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                className={activeCategory?.id === cat.id ? "category-tab active" : "category-tab"}
-                onClick={() => setCategoryId(cat.id)}
-              >
-                {itemName(cat, lang)}
-              </button>
-            ))}
+            <button
+              className={group === "FOOD" ? "category-tab active" : "category-tab"}
+              onClick={() => setGroup("FOOD")}
+            >
+              {t("food")}
+            </button>
+            <button
+              className={group === "DRINK" ? "category-tab active" : "category-tab"}
+              onClick={() => setGroup("DRINK")}
+            >
+              {t("drinks")}
+            </button>
           </div>
 
           <div className="menu-item-grid">
-            {activeCategory?.items.map((item) => (
+            {groupItems.map((item) => (
               <MenuItemCard
                 key={item.id}
                 item={item}

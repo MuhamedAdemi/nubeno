@@ -1,6 +1,7 @@
 import type { MenuItem, ModifierOption } from "../api/types";
 import { itemName } from "../api/types";
 import { useLang } from "../i18n/LangContext";
+import { useAuth } from "../auth/AuthContext";
 
 export interface DraftItem {
   key: string;
@@ -21,15 +22,20 @@ interface Props {
 
 export function DraftCartPanel({ tableNumber, items, onDeleteItem, onEditItem, onRegister, busy }: Props) {
   const { lang, t } = useLang();
+  const { user } = useAuth();
 
   const total = items.reduce((sum, item) => sum + Number(item.menuItem.price) * item.quantity, 0);
 
   return (
     <aside className="cart-panel">
-      <h2>
-        {t("cart_title")} — {t("table")} {tableNumber}
-      </h2>
       <p className="draft-hint">{t("draft_hint")}</p>
+
+      <div className="cart-table-header">
+        <span></span>
+        <span>{t("item_name_column")}</span>
+        <span className="cart-col-qty">{t("quantity")}</span>
+        <span className="cart-col-amount">{t("amount")}</span>
+      </div>
 
       {items.length === 0 && <p className="cart-empty">{t("cart_empty")}</p>}
 
@@ -37,11 +43,13 @@ export function DraftCartPanel({ tableNumber, items, onDeleteItem, onEditItem, o
         {items.map((item) => (
           <li key={item.key} className="cart-item">
             <div className="cart-item-main">
+              <span />
               <span className="cart-item-name">
-                {item.quantity}× {itemName(item.menuItem, lang)}
+                {itemName(item.menuItem, lang)}
                 {item.menuItem.variant_label ? ` (${item.menuItem.variant_label})` : ""}
               </span>
-              <span className="cart-item-price">
+              <span className="cart-col-qty">{item.quantity}</span>
+              <span className="cart-col-amount">
                 {(Number(item.menuItem.price) * item.quantity).toFixed(2)} €
               </span>
             </div>
@@ -63,9 +71,10 @@ export function DraftCartPanel({ tableNumber, items, onDeleteItem, onEditItem, o
         ))}
       </ul>
 
-      <div className="cart-total">
-        <span>{t("total")}</span>
-        <span>{total.toFixed(2)} €</span>
+      <div className="cart-summary-bar">
+        <span className="cart-summary-table">{t("table")} {tableNumber}</span>
+        {user?.initials && <span className="cart-summary-waiter">{user.initials}</span>}
+        <span className="cart-summary-total">{total.toFixed(2)} €</span>
       </div>
 
       <div className="cart-actions">

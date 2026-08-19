@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Order, OrderItem } from "../api/types";
 import { itemName } from "../api/types";
 import { useLang } from "../i18n/LangContext";
+import { useAuth } from "../auth/AuthContext";
 
 interface Props {
   order: Order;
@@ -25,6 +26,7 @@ export function CartPanel({
   busy,
 }: Props) {
   const { lang, t } = useLang();
+  const { user } = useAuth();
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
   const unpaidItems = order.items.filter((item) => !item.is_paid);
@@ -48,9 +50,12 @@ export function CartPanel({
 
   return (
     <aside className="cart-panel">
-      <h2>
-        {t("cart_title")} — {t("table")} {order.table_number}
-      </h2>
+      <div className="cart-table-header">
+        <span></span>
+        <span>{t("item_name_column")}</span>
+        <span className="cart-col-qty">{t("quantity")}</span>
+        <span className="cart-col-amount">{t("amount")}</span>
+      </div>
 
       {order.items.length === 0 && <p className="cart-empty">{t("cart_empty")}</p>}
 
@@ -58,7 +63,7 @@ export function CartPanel({
         {order.items.map((item) => (
           <li key={item.id} className={item.is_paid ? "cart-item cart-item-paid" : "cart-item"}>
             <div className="cart-item-main">
-              {!item.is_paid && (
+              {!item.is_paid ? (
                 <input
                   type="checkbox"
                   className="cart-item-checkbox"
@@ -66,12 +71,15 @@ export function CartPanel({
                   onChange={() => toggleSelected(item.id)}
                   disabled={busy}
                 />
+              ) : (
+                <span />
               )}
               <span className="cart-item-name">
-                {item.quantity}× {itemName(item.menu_item, lang)}
+                {itemName(item.menu_item, lang)}
                 {item.menu_item.variant_label ? ` (${item.menu_item.variant_label})` : ""}
               </span>
-              <span className="cart-item-price">{Number(item.line_total).toFixed(2)} €</span>
+              <span className="cart-col-qty">{item.quantity}</span>
+              <span className="cart-col-amount">{Number(item.line_total).toFixed(2)} €</span>
             </div>
             {item.removed_modifiers.length > 0 && (
               <div className="cart-item-mods">
@@ -95,9 +103,10 @@ export function CartPanel({
         ))}
       </ul>
 
-      <div className="cart-total">
-        <span>{t("total")}</span>
-        <span>{Number(order.total).toFixed(2)} €</span>
+      <div className="cart-summary-bar">
+        <span className="cart-summary-table">{t("table")} {order.table_number}</span>
+        {user?.initials && <span className="cart-summary-waiter">{user.initials}</span>}
+        <span className="cart-summary-total">{Number(order.total).toFixed(2)} €</span>
       </div>
       {Number(order.remaining_total) !== Number(order.total) && (
         <div className="cart-total cart-total-remaining">

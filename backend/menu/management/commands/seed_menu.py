@@ -133,14 +133,14 @@ ITEMS = {
     "pizza": [
         ("Margherita", "Margherita", "Margherita", "", "10.00", "pz_margherita"),
         ("Funghi", "Funghi", "Funghi", "", "12.00", "pz_funghi"),
-        ("Vezuvio", "Vezuvio", "Vezuvio", "", "12.00", "pz_vezuvio"),
+        ("Vezuvio", "Vezuvio", "Vezuvio", "", "13.00", "pz_vezuvio"),
         ("Ruccola", "Ruccola", "Rukola", "", "12.00", "pz_ruccola"),
         ("Vegetariana", "Vegetariana", "Vegetariana", "", "12.50", "pz_vegetariana"),
         ("Mexicana", "Mexicana", "Mexicana", "", "13.00", "pz_mexicana"),
         ("Capricciosa", "Capricciosa", "Capricciosa", "", "13.00", "pz_capricciosa"),
         ("Buffala", "Buffala", "Buffala", "", "13.00", "pz_buffala"),
         ("Tonno", "Tonno", "Tonno", "", "13.50", "pz_tonno"),
-        ("Napoletana", "Napoletana", "Napoletana", "", "13.50", "pz_napoletana"),
+        ("Napoletana", "Napoletana", "Napoletana", "", "14.00", "pz_napoletana"),
         ("Calzone", "Calzone", "Calzone", "", "14.00", "pz_calzone"),
         ("Quatro Formaggi", "Quatro Formaggi", "Quatro Formaggi", "", "14.00", "pz_quatro"),
         ("Nubeno", "Nubeno", "Nubeno", "", "16.00", "pz_nubeno"),
@@ -207,8 +207,7 @@ ITEMS = {
         ("Gemišt", "Wine Spritzer", "Gemisht", "0.20l", "2.50", None),
         ("Pelinkovac", "Pelinkovac", "Pelinkovac", "0.03l", "2.50", None),
         ("Travarica", "Travarica", "Travarica", "0.03l", "2.50", None),
-        # Price is a placeholder — no price was given; adjust in the admin.
-        ("Aperol Spritz", "Aperol Spritz", "Aperol Spritz", "", "5.00", None),
+        ("Aperol Spritz", "Aperol Spritz", "Aperol Spritz", "", "6.00", None),
     ],
     "pije": [
         ("Coca Cola", "Coca Cola", "Coca Cola", "0.33l", "3.50", None),
