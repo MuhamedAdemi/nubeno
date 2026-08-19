@@ -237,10 +237,15 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        # Drop any category/modifier-group left over from an older menu
-        # structure so the admin and API only ever show the current layout.
+        # Hide any category left over from an older menu structure so the
+        # admin and API only ever show the current layout. Deactivate rather
+        # than delete: a removed category (e.g. the old "Burgers"/"Kebab"
+        # tabs folded back into "Hrana") still CASCADEs to its MenuItems,
+        # which real historical OrderItems PROTECT-reference — see the
+        # matching per-item deactivation below and menu/views.py, which
+        # only ever returns active=True categories.
         keep_categories = {name_en for _, name_en, *_ in CATEGORIES.values()}
-        Category.objects.exclude(name_en__in=keep_categories).delete()
+        Category.objects.exclude(name_en__in=keep_categories).update(active=False)
         keep_groups = {name_en for _, name_en, *_ in MODIFIER_GROUPS.values()}
         ModifierGroup.objects.exclude(name_en__in=keep_groups).delete()
 
@@ -248,7 +253,10 @@ class Command(BaseCommand):
         for key, (name_hr, name_en, name_sq, group, order) in CATEGORIES.items():
             obj, _ = Category.objects.update_or_create(
                 name_en=name_en,
-                defaults=dict(name_hr=name_hr, name_sq=name_sq, group=group, order=order),
+                defaults=dict(
+                    name_hr=name_hr, name_sq=name_sq, group=group, order=order,
+                    active=True,
+                ),
             )
             categories[key] = obj
 

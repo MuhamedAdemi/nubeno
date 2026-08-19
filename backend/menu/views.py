@@ -6,4 +6,6 @@ from .serializers import CategorySerializer
 
 class MenuView(ListAPIView):
     serializer_class = CategorySerializer
-    queryset = Category.objects.prefetch_related("items__modifier_group__options")
+    queryset = Category.objects.filter(active=True).prefetch_related(
+        "items__modifier_group__options"
+    )

@@ -21,6 +21,7 @@ class Category(TranslatedNameMixin):
 
     group = models.CharField(max_length=10, choices=GROUP_CHOICES)
     order = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["order", "id"]
