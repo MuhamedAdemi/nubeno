@@ -147,12 +147,15 @@ ITEMS = {
         ("Pizza kriška", "Pizza Slice", "Fetë Pice", "", "4.00", None),
         ("Pogača", "Flatbread", "Pogaçe", "", "6.00", None),
     ],
+    # Every salad now spells out "Salata/Salad/Sallatë" in its name in every
+    # language — a few used to drop it (e.g. plain "Tuna"), which read like a
+    # different dish rather than obviously being a salad.
     "sallata": [
-        ("Miješana", "Mixed Salad", "Sallatë e Përzier", "", "8.50", None),
-        ("Šopska", "Shop Salad", "Sallatë Shopska", "", "8.50", "sl_sopska"),
-        ("Ruccola", "Ruccola", "Rukola", "", "9.00", "sl_ruccola"),
-        ("Grčka", "Greek Salad", "Sallatë Greke", "", "9.50", "sl_grcka"),
-        ("Tuna", "Tuna", "Tuna", "", "9.50", "sl_tuna"),
+        ("Miješana Salata", "Mixed Salad", "Sallatë e Përzier", "", "8.50", None),
+        ("Šopska Salata", "Shop Salad", "Sallatë Shopska", "", "8.50", "sl_sopska"),
+        ("Ruccola Salata", "Ruccola Salad", "Sallatë Rukola", "", "9.00", "sl_ruccola"),
+        ("Grčka Salata", "Greek Salad", "Sallatë Greke", "", "9.50", "sl_grcka"),
+        ("Tuna Salata", "Tuna Salad", "Sallatë Tuna", "", "9.50", "sl_tuna"),
         ("Caprese Salata", "Caprese Salad", "Sallatë Caprese", "", "10.00", "sl_caprese"),
         ("Cezar Salata", "Caesar Salad", "Sallatë Cezar", "", "10.50", "sl_cezar"),
         ("Pileća Salata", "Chicken Salad", "Sallatë me Pule", "", "10.50", "sl_pileca"),
@@ -176,15 +179,15 @@ ITEMS = {
         ("Double Cheeseburger", "Double Cheeseburger", "Double Cheeseburger", "", "16.00", "food_extras"),
         ("Chicken Burger", "Chicken Burger", "Chicken Burger", "", "10.00", "food_extras"),
         ("Nubeno Burger", "Nubeno Burger", "Nubeno Burger", "", "15.00", "food_extras"),
-        ("Pileći medaljoni", "Chicken Nuggets", "Nagetsa Pule", "", "8.00", None),
+        ("Pileći Nuggets", "Chicken Nuggets", "Nagetsa Pule", "", "8.00", None),
         ("Pileći stek", "Chicken Steak", "Stek Pule", "", "12.00", None),
         ("Pileći stek (pohani)", "Chicken Steak (breaded)", "Stek Pule (i paniruar)", "", "13.00", None),
         ("Pileći prutići", "Chicken Fingers", "Gishta Pule", "", "13.00", None),
-        ("Ćevapi", "Ćevapi", "Qebapa", "5x", "8.00", None),
-        ("Ćevapi", "Ćevapi", "Qebapa", "10x", "13.00", None),
+        ("Ćevapi", "Ćevapi", "Qebapa", "Mala", "8.00", None),
+        ("Ćevapi", "Ćevapi", "Qebapa", "Velika", "13.00", None),
         ("Lignje", "Squids", "Kallamar", "", "15.00", None),
         ("Hot Dog", "Hot Dog", "Hot Dog", "", "7.00", None),
-        ("Pomes frites", "French Fries", "Patate të Skuqura", "", "4.00", None),
+        ("Pomes", "French Fries", "Patate të Skuqura", "", "4.00", None),
         ("Onion Rings", "Onion Rings", "Unaza Qepe", "", "6.00", None),
         ("Mozzarella štapići", "Mozzarella Sticks", "Shkopinj Mocarele", "", "8.00", None),
         ("Lepinja", "Flatbread", "Lepinjë", "", "2.00", None),
@@ -192,6 +195,8 @@ ITEMS = {
         ("Razni dodaci", "Assorted Extras", "Shtesa të Ndryshme", "Velika porcija", "3.00", None),
     ],
     "alkoolike": [
+        # Draft beer moved to the front — a high-frequency order the owner
+        # asked to be easy to spot at a glance.
         ("Točeno pivo", "Draft Beer", "Birrë me Fuçi", "0.30l", "3.00", None),
         ("Točeno pivo", "Draft Beer", "Birrë me Fuçi", "0.50l", "4.00", None),
         ("Karlovačko", "Karlovačko", "Karlovačko", "0.33l", "3.00", None),
@@ -210,7 +215,10 @@ ITEMS = {
         ("Aperol Spritz", "Aperol Spritz", "Aperol Spritz", "", "6.00", None),
     ],
     "pije": [
+        # Coca Cola and Ledeni Čaj lead the grid — the owner's two
+        # highest-frequency orders, kept easy to spot at a glance.
         ("Coca Cola", "Coca Cola", "Coca Cola", "0.33l", "3.50", None),
+        ("Ledeni Čaj", "Ice Tea", "Çaj i Ftohtë", "0.50l", "3.50", None),
         ("Fanta", "Fanta", "Fanta", "0.33l", "3.50", None),
         ("Schweppes", "Schweppes", "Schweppes", "0.33l", "3.50", None),
         ("Cockta", "Cockta", "Cockta", "0.33l", "3.50", None),
@@ -221,10 +229,12 @@ ITEMS = {
         ("Red Bull", "Red Bull", "Red Bull", "0.30l", "3.00", None),
         ("Limunada", "Lemonade", "Limonadë", "0.3l", "3.00", None),
         ("Limunada", "Lemonade", "Limonadë", "0.5l", "4.00", None),
-        ("Ledeni Čaj", "Ice Tea", "Çaj i Ftohtë", "0.50l", "3.50", None),
+        # All bottled/still waters grouped together so a specific size/brand
+        # is easy to find instead of scattered across the grid.
         ("Jamnica", "Jamnica (sparkling)", "Jamnica", "0.3l", "2.50", None),
         ("Jamnica", "Jamnica (sparkling)", "Jamnica", "0.5l", "3.00", None),
         ("Jamnica", "Jamnica (still)", "Jamnica (pa gaz)", "1L", "5.50", None),
+        ("Jana", "Jana", "Jana", "0.5l", "2.50", None),
         ("Romerquelle", "Romerquelle", "Romerquelle", "0.50l", "2.50", None),
         ("Hidra", "Hidra", "Hidra", "0.50l", "3.50", None),
     ],
