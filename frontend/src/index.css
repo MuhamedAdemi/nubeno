@@ -793,7 +793,9 @@ input {
   height: 50px;
   width: 220px;
   margin: 0 auto 10px;
-  background: repeating-linear-gradient(
+  padding: 6px 10px;
+  background-color: white;
+  background-image: repeating-linear-gradient(
     90deg,
     #1a1a1a 0px,
     #1a1a1a 2px,
