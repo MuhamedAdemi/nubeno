@@ -25,6 +25,16 @@ class AdminProfileInline(admin.StackedInline):
 class UserAdmin(DjangoUserAdmin):
     inlines = [*DjangoUserAdmin.inlines, AdminProfileInline]
 
+    def get_queryset(self, request):
+        # The super admin should not be visible to anyone else at all — not
+        # just protected from editing. Every super admin still sees
+        # themselves; nobody else sees that the account exists.
+        qs = super().get_queryset(request)
+        hidden_ids = AdminProfile.objects.filter(is_super_admin=True).exclude(
+            user=request.user
+        ).values_list("user_id", flat=True)
+        return qs.exclude(id__in=hidden_ids)
+
     def has_change_permission(self, request, obj=None):
         if obj is not None and obj != request.user and _is_super_admin(obj) and not _is_super_admin(request.user):
             return False

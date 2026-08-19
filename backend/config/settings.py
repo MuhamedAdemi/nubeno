@@ -114,21 +114,13 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+#
+# Deliberately empty: waiter accounts are created by the owner, not chosen by
+# the waiter, and need to be trivial to type/remember on a phone at the start
+# of a shift — Django's default validators (min length, common-password
+# check, etc.) would block that. Staff accounts aren't public signups, so the
+# usual justification for enforcing password strength doesn't apply here.
+AUTH_PASSWORD_VALIDATORS = []
 
 
 # Internationalization
