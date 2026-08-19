@@ -11,11 +11,13 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Order, OrderItem
+from .models import CashRegisterEntry, Order, OrderItem
 from .serializers import (
     AddOrderItemSerializer,
+    CashRegisterStateSerializer,
     OrderSerializer,
     PayItemsSerializer,
+    SetCashFloatSerializer,
     TransferOrderSerializer,
     UpdateOrderItemSerializer,
 )
@@ -86,6 +88,7 @@ class OrderPayView(APIView):
         serializer = PayItemsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         requested_items = serializer.validated_data["item_ids"]
+        payment_method = serializer.validated_data["payment_method"]
 
         unpaid = order.items.filter(is_paid=False)
         items_to_pay = unpaid.filter(id__in=[i.id for i in requested_items]) if requested_items else unpaid
@@ -94,7 +97,7 @@ class OrderPayView(APIView):
         if not paid_item_ids:
             return Response({"detail": "Nothing to pay."}, status=status.HTTP_400_BAD_REQUEST)
 
-        items_to_pay.update(is_paid=True, paid_at=timezone.now())
+        items_to_pay.update(is_paid=True, paid_at=timezone.now(), payment_method=payment_method)
 
         if not order.items.filter(is_paid=False).exists():
             order.status = "PAID"
@@ -138,18 +141,25 @@ class OrderCancelView(APIView):
 
 
 class AnalyticsView(APIView):
-    """Sales totals for administrators (is_staff) — daily breakdown plus
-    today/week/month/all-time summaries. Counted per paid *item* (not per
-    closed order), since a split-payment order can stay open for a while
-    with some items already paid and others not."""
+    """Sales totals. Counted per paid *item* (not per closed order), since a
+    split-payment order can stay open for a while with some items already
+    paid and others not.
 
-    permission_classes = [IsAdminUser]
+    Any signed-in staff (waiters included) can call this and gets today's
+    total only — the owner wanted waiters able to check today's turnover.
+    Admins additionally get week/month/all-time and the daily breakdown."""
 
     def get(self, request):
         line_total = ExpressionWrapper(
             F("unit_price") * F("quantity"), output_field=DecimalField(max_digits=10, decimal_places=2)
         )
         paid_items = OrderItem.objects.filter(is_paid=True)
+
+        today = timezone.localdate()
+
+        if not request.user.is_staff:
+            today_total = paid_items.filter(paid_at__date=today).aggregate(total=Sum(line_total))["total"] or Decimal("0.00")
+            return Response({"today_total": str(today_total)})
 
         daily = list(
             paid_items.annotate(day=TruncDate("paid_at"))
@@ -160,7 +170,6 @@ class AnalyticsView(APIView):
 
         all_time_total = paid_items.aggregate(total=Sum(line_total))["total"] or Decimal("0.00")
 
-        today = timezone.localdate()
         week_start = today - timedelta(days=today.weekday())
         month_start = today.replace(day=1)
 
@@ -180,3 +189,48 @@ class AnalyticsView(APIView):
                 ],
             }
         )
+
+
+class CashRegisterView(APIView):
+    """The till float ('polog') plus cash/card totals taken in since it was
+    last set — anyone signed in can view it (a waiter should be able to
+    check it), but only an admin can set a new float (POST)."""
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+    def get(self, request):
+        latest = CashRegisterEntry.objects.select_related("set_by").first()
+        float_amount = latest.float_amount if latest else Decimal("0.00")
+        since = latest.set_at if latest else None
+
+        line_total = ExpressionWrapper(
+            F("unit_price") * F("quantity"), output_field=DecimalField(max_digits=10, decimal_places=2)
+        )
+        paid_since = OrderItem.objects.filter(is_paid=True)
+        if since:
+            paid_since = paid_since.filter(paid_at__gte=since)
+
+        def total_for(method):
+            return paid_since.filter(payment_method=method).aggregate(total=Sum(line_total))["total"] or Decimal("0.00")
+
+        cash_total = total_for("CASH")
+        card_total = total_for("CARD")
+
+        data = {
+            "float_amount": float_amount,
+            "set_at": since,
+            "set_by_username": latest.set_by.username if latest and latest.set_by else None,
+            "cash_total": cash_total,
+            "card_total": card_total,
+            "expected_cash": float_amount + cash_total,
+        }
+        return Response(CashRegisterStateSerializer(data).data)
+
+    def post(self, request):
+        serializer = SetCashFloatSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return self.get(request)

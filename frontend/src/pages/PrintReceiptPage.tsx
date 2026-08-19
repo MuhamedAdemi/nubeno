@@ -19,12 +19,17 @@ export function PrintReceiptPage() {
     enabled: !!orderId,
   });
 
+  // Reached two ways: after actually paying (auto-prints, as before), or
+  // from the new non-destructive "Shiko Faturën" button on an unpaid order —
+  // that one is just a nice on-screen bill and must never trigger a print.
+  const isPreview = searchParams.get("preview") === "1";
+
   useEffect(() => {
-    if (order) {
+    if (order && !isPreview) {
       const timer = setTimeout(() => window.print(), 300);
       return () => clearTimeout(timer);
     }
-  }, [order]);
+  }, [order, isPreview]);
 
   if (!order) return null;
 

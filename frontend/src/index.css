@@ -804,6 +804,23 @@ input {
   flex: 1;
 }
 
+.payment-method-modal h2 {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.payment-method-options {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.payment-method-options .btn {
+  flex: 1;
+  padding: 22px 12px;
+  font-size: 18px;
+}
+
 .transfer-table-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
@@ -1119,4 +1136,40 @@ input {
   border-radius: 2px;
   background: var(--accent);
   align-self: stretch;
+}
+
+.cash-register-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 28px;
+}
+
+.cash-register-card .daily-breakdown-title {
+  margin-top: 0;
+}
+
+.cash-register-card .stat-tile-row {
+  margin-bottom: 16px;
+}
+
+.cash-register-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.cash-register-set-form {
+  display: flex;
+  gap: 10px;
+}
+
+.cash-register-set-form input {
+  flex: 1;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 16px;
+  color: var(--text);
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/client";
-import type { MenuItem, OrderItem } from "../api/types";
+import type { MenuItem, OrderItem, PaymentMethod } from "../api/types";
 import { useLang } from "../i18n/LangContext";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { MenuItemCard } from "../components/MenuItemCard";
@@ -81,7 +81,8 @@ export function OrderPage() {
   });
 
   const payMutation = useMutation({
-    mutationFn: (itemIds: number[]) => api.payOrder(table!.open_order_id!, itemIds),
+    mutationFn: ({ itemIds, paymentMethod }: { itemIds: number[]; paymentMethod: PaymentMethod }) =>
+      api.payOrder(table!.open_order_id!, itemIds, paymentMethod),
     onSuccess: (result) => {
       invalidateOrder();
       navigate(`/orders/${result.id}/print?items=${result.paid_item_ids.join(",")}`);
@@ -224,9 +225,7 @@ export function OrderPage() {
             onEditItem={(orderItem) =>
               setModalState({ mode: "edit-registered", item: orderItem.menu_item, orderItem })
             }
-            onPay={(itemIds) => {
-              if (confirm(t("confirm_pay"))) payMutation.mutate(itemIds);
-            }}
+            onPay={(itemIds, paymentMethod) => payMutation.mutate({ itemIds, paymentMethod })}
             onCancelOrder={() => {
               if (confirm(t("confirm_cancel"))) cancelMutation.mutate();
             }}

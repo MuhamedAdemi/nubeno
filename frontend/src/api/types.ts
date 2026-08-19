@@ -42,6 +42,8 @@ export interface Table {
   open_order_total: string | null;
 }
 
+export type PaymentMethod = "CASH" | "CARD";
+
 export interface OrderItem {
   id: number;
   menu_item: MenuItem;
@@ -51,6 +53,7 @@ export interface OrderItem {
   removed_modifiers: ModifierOption[];
   line_total: string;
   is_paid: boolean;
+  payment_method: PaymentMethod | null;
 }
 
 export interface Order {
@@ -78,10 +81,20 @@ export interface DailySales {
 
 export interface Analytics {
   today_total: string;
-  week_total: string;
-  month_total: string;
-  all_time_total: string;
-  daily: DailySales[];
+  // Waiters only get today_total from the API — these are admin-only.
+  week_total?: string;
+  month_total?: string;
+  all_time_total?: string;
+  daily?: DailySales[];
+}
+
+export interface CashRegisterState {
+  float_amount: string;
+  set_at: string | null;
+  set_by_username: string | null;
+  cash_total: string;
+  card_total: string;
+  expected_cash: string;
 }
 
 export function itemName(item: { name_hr: string; name_en: string; name_sq: string }, lang: Lang): string {

@@ -4,7 +4,7 @@ from menu.models import MenuItem, ModifierOption
 from menu.serializers import MenuItemSerializer, ModifierOptionSerializer
 from tables.models import Table
 
-from .models import Order, OrderItem, OrderItemModifierRemoval
+from .models import CashRegisterEntry, Order, OrderItem, OrderItemModifierRemoval
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -23,6 +23,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "removed_modifiers",
             "line_total",
             "is_paid",
+            "payment_method",
         ]
 
     def get_removed_modifiers(self, obj):
@@ -120,6 +121,7 @@ class PayItemsSerializer(serializers.Serializer):
     item_ids = serializers.PrimaryKeyRelatedField(
         queryset=OrderItem.objects.all(), many=True, required=False, default=list
     )
+    payment_method = serializers.ChoiceField(choices=OrderItem.PAYMENT_METHOD_CHOICES)
 
 
 class TransferOrderSerializer(serializers.Serializer):
@@ -129,3 +131,21 @@ class TransferOrderSerializer(serializers.Serializer):
         if table.open_order:
             raise serializers.ValidationError("That table already has an open order.")
         return table
+
+
+class CashRegisterStateSerializer(serializers.Serializer):
+    float_amount = serializers.DecimalField(max_digits=8, decimal_places=2)
+    set_at = serializers.DateTimeField(allow_null=True)
+    set_by_username = serializers.CharField(allow_null=True)
+    cash_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    card_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    expected_cash = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+
+class SetCashFloatSerializer(serializers.Serializer):
+    float_amount = serializers.DecimalField(max_digits=8, decimal_places=2, min_value=0)
+
+    def create(self, validated_data):
+        return CashRegisterEntry.objects.create(
+            float_amount=validated_data["float_amount"], set_by=self.context["request"].user
+        )

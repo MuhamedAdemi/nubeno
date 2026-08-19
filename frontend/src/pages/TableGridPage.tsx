@@ -26,11 +26,9 @@ export function TableGridPage() {
         <div className="brand">nubeno</div>
         <div className="header-actions">
           <LanguageSwitcher />
-          {user?.is_admin && (
-            <button className="btn btn-ghost" onClick={() => navigate("/analytics")}>
-              {t("analytics")}
-            </button>
-          )}
+          <button className="btn btn-ghost" onClick={() => navigate("/analytics")}>
+            {t("analytics")}
+          </button>
           <span className="username">{user?.username}</span>
           <button className="btn btn-ghost" onClick={logout}>
             {t("logout")}

@@ -1,14 +1,16 @@
 import { useState } from "react";
-import type { Order, OrderItem } from "../api/types";
+import { useNavigate } from "react-router-dom";
+import type { Order, OrderItem, PaymentMethod } from "../api/types";
 import { itemName } from "../api/types";
 import { useLang } from "../i18n/LangContext";
 import { useAuth } from "../auth/AuthContext";
+import { PaymentMethodModal } from "./PaymentMethodModal";
 
 interface Props {
   order: Order;
   onDeleteItem: (itemId: number) => void;
   onEditItem: (item: OrderItem) => void;
-  onPay: (itemIds: number[]) => void;
+  onPay: (itemIds: number[], paymentMethod: PaymentMethod) => void;
   onCancelOrder: () => void;
   onPrintKitchen: () => void;
   onTransferClick: () => void;
@@ -27,7 +29,9 @@ export function CartPanel({
 }: Props) {
   const { lang, t } = useLang();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const unpaidItems = order.items.filter((item) => !item.is_paid);
   const selectedItems = unpaidItems.filter((item) => selected.has(item.id));
@@ -43,9 +47,18 @@ export function CartPanel({
     });
   }
 
-  function handlePay() {
-    onPay(selectedItems.map((item) => item.id));
+  function handleChoosePaymentMethod(method: PaymentMethod) {
+    onPay(selectedItems.map((item) => item.id), method);
     setSelected(new Set());
+    setShowPaymentModal(false);
+  }
+
+  // Non-destructive: shows the same nice on-screen bill without paying or
+  // freeing the table — the owner specifically wanted a way to show the
+  // guest a preview from the phone without committing to anything.
+  function handleViewBill() {
+    const ids = payTotal.map((item) => item.id).join(",");
+    navigate(`/orders/${order.id}/print?items=${ids}&preview=1`);
   }
 
   return (
@@ -119,7 +132,14 @@ export function CartPanel({
         <button className="btn btn-ghost btn-lg" onClick={onPrintKitchen} disabled={busy || order.items.length === 0}>
           {t("print_kitchen")}
         </button>
-        <button className="btn btn-primary btn-lg" onClick={handlePay} disabled={busy || unpaidItems.length === 0}>
+        <button className="btn btn-ghost btn-lg" onClick={handleViewBill} disabled={busy || unpaidItems.length === 0}>
+          {t("view_bill")}
+        </button>
+        <button
+          className="btn btn-primary btn-lg"
+          onClick={() => setShowPaymentModal(true)}
+          disabled={busy || unpaidItems.length === 0}
+        >
           {selectedItems.length > 0 ? `${t("pay_selected")} (${payAmount.toFixed(2)} €)` : `${t("pay")} (${payAmount.toFixed(2)} €)`}
         </button>
         <button className="btn btn-ghost btn-lg" onClick={onTransferClick} disabled={busy}>
@@ -129,6 +149,10 @@ export function CartPanel({
           {t("cancel_order")}
         </button>
       </div>
+
+      {showPaymentModal && (
+        <PaymentMethodModal onClose={() => setShowPaymentModal(false)} onChoose={handleChoosePaymentMethod} />
+      )}
     </aside>
   );
 }

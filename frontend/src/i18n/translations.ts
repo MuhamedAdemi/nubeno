@@ -19,7 +19,6 @@ export const translations = {
   pay: { hr: "Plati", en: "Pay", sq: "Paguaj" },
   cancel_order: { hr: "Obriši narudžbu", en: "Delete order", sq: "Fshij porosinë" },
   delete_item: { hr: "Obriši", en: "Delete", sq: "Fshij" },
-  confirm_pay: { hr: "Potvrdi plaćanje i ispiši račun?", en: "Confirm payment and print receipt?", sq: "Konfirmo pagesën dhe printo faturën?" },
   confirm_cancel: { hr: "Obrisati cijelu narudžbu?", en: "Delete the whole order?", sq: "Fshij tërë porosinë?" },
   confirm_delete_item: { hr: "Obrisati ovu stavku?", en: "Delete this item?", sq: "Fshij këtë artikull?" },
   customize: { hr: "Prilagodi", en: "Customize", sq: "Personalizo" },
@@ -82,6 +81,22 @@ export const translations = {
   drinks: { hr: "Piće", en: "Drinks", sq: "Pije" },
   item_name_column: { hr: "Naziv artikla", en: "Item", sq: "Emri i artikullit" },
   amount: { hr: "Iznos", en: "Amount", sq: "Shuma" },
+  view_bill: { hr: "Pogledaj račun", en: "View bill", sq: "Shiko Faturën" },
+  choose_payment_method: { hr: "Način plaćanja?", en: "Payment method?", sq: "Mënyra e pagesës?" },
+  cash: { hr: "Gotovina", en: "Cash", sq: "Gotovinë" },
+  card: { hr: "Kartica", en: "Card", sq: "Kartelë" },
+  cash_register: { hr: "Stanje blagajne", en: "Cash register", sq: "Stanje Kase" },
+  starting_float: { hr: "Početni polog", en: "Starting float", sq: "Pollogu Fillestar" },
+  set_float: { hr: "Postavi polog", en: "Set float", sq: "Vendos pollogun" },
+  expected_cash: { hr: "Očekivana gotovina", en: "Expected cash", sq: "Gotovina e Pritur" },
+  cash_total: { hr: "Gotovina (danas)", en: "Cash total", sq: "Total Gotovinë" },
+  card_total: { hr: "Kartica (danas)", en: "Card total", sq: "Total Kartelë" },
+  float_set_by: { hr: "Postavio", en: "Set by", sq: "Vendosur nga" },
+  no_float_set: {
+    hr: "Nitko još nije postavio polog",
+    en: "Nobody has set a float yet",
+    sq: "Askush ende s'e ka vendosur pollogun",
+  },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

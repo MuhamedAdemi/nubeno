@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Order, OrderItem, OrderItemModifierRemoval
+from .models import CashRegisterEntry, Order, OrderItem, OrderItemModifierRemoval
 
 
 class OrderItemModifierRemovalInline(admin.TabularInline):
@@ -23,5 +23,11 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ["order", "menu_item", "quantity", "unit_price"]
+    list_display = ["order", "menu_item", "quantity", "unit_price", "payment_method"]
     inlines = [OrderItemModifierRemovalInline]
+
+
+@admin.register(CashRegisterEntry)
+class CashRegisterEntryAdmin(admin.ModelAdmin):
+    list_display = ["float_amount", "set_by", "set_at"]
+    readonly_fields = ["set_at"]

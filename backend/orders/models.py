@@ -43,6 +43,8 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
+    PAYMENT_METHOD_CHOICES = [("CASH", "Cash"), ("CARD", "Card")]
+
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
     menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=1)
@@ -51,6 +53,11 @@ class OrderItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_paid = models.BooleanField(default=False)
     paid_at = models.DateTimeField(null=True, blank=True)
+    # Null for items paid before this field existed — every payment from now
+    # on always sets it (required in PayItemsSerializer).
+    payment_method = models.CharField(
+        max_length=4, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True
+    )
 
     class Meta:
         ordering = ["created_at"]
@@ -73,3 +80,23 @@ class OrderItemModifierRemoval(models.Model):
 
     class Meta:
         unique_together = ["order_item", "modifier_option"]
+
+
+class CashRegisterEntry(models.Model):
+    """One admin-set starting float ('polog') for the till. The state is
+    continuous, not reset daily — the newest entry's amount + timestamp is
+    the current baseline until an admin sets a new one (e.g. after counting
+    the drawer), which is also why this is an append-only log rather than a
+    single mutable row: it doubles as an audit trail."""
+
+    float_amount = models.DecimalField(max_digits=8, decimal_places=2)
+    set_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL
+    )
+    set_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-set_at"]
+
+    def __str__(self):
+        return f"{self.float_amount} € as of {self.set_at:%Y-%m-%d %H:%M}"

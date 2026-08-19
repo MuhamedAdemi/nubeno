@@ -6,7 +6,6 @@ import { PrintReceiptPage } from "./pages/PrintReceiptPage";
 import { KitchenPrintPage } from "./pages/KitchenPrintPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
 import { RequireAuth } from "./auth/RequireAuth";
-import { RequireAdmin } from "./auth/RequireAdmin";
 
 export default function App() {
   return (
@@ -47,9 +46,9 @@ export default function App() {
       <Route
         path="/analytics"
         element={
-          <RequireAdmin>
+          <RequireAuth>
             <AnalyticsPage />
-          </RequireAdmin>
+          </RequireAuth>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -74,10 +74,10 @@ export const api = {
     }),
   deleteOrderItem: (orderId: number, itemId: number) =>
     apiFetch<import("./types").Order>(`/api/orders/${orderId}/items/${itemId}/`, { method: "DELETE" }),
-  payOrder: (orderId: number, itemIds?: number[]) =>
+  payOrder: (orderId: number, itemIds: number[] | undefined, paymentMethod: import("./types").PaymentMethod) =>
     apiFetch<import("./types").PayResult>(`/api/orders/${orderId}/pay/`, {
       method: "POST",
-      body: JSON.stringify({ item_ids: itemIds ?? [] }),
+      body: JSON.stringify({ item_ids: itemIds ?? [], payment_method: paymentMethod }),
     }),
   cancelOrder: (orderId: number) =>
     apiFetch<import("./types").Order>(`/api/orders/${orderId}/cancel/`, { method: "POST" }),
@@ -87,4 +87,10 @@ export const api = {
       body: JSON.stringify({ table_id: tableId }),
     }),
   getAnalytics: () => apiFetch<import("./types").Analytics>("/api/orders/analytics/"),
+  getCashRegister: () => apiFetch<import("./types").CashRegisterState>("/api/orders/cash-register/"),
+  setCashFloat: (amount: string) =>
+    apiFetch<import("./types").CashRegisterState>("/api/orders/cash-register/", {
+      method: "POST",
+      body: JSON.stringify({ float_amount: amount }),
+    }),
 };
