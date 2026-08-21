@@ -97,6 +97,12 @@ export const translations = {
     en: "Nobody has set a float yet",
     sq: "Askush ende s'e ka vendosur pollogun",
   },
+  cancel: { hr: "Odustani", en: "Cancel", sq: "Anulo" },
+  pick_destination_table: {
+    hr: "Odaberi slobodan stol za premještanje",
+    en: "Pick a free table to move it to",
+    sq: "Zgjidh tavolinën e lirë ku do ta bartësh",
+  },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

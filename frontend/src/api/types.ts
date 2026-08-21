@@ -81,11 +81,10 @@ export interface DailySales {
 
 export interface Analytics {
   today_total: string;
-  // Waiters only get today_total from the API — these are admin-only.
-  week_total?: string;
-  month_total?: string;
-  all_time_total?: string;
-  daily?: DailySales[];
+  week_total: string;
+  month_total: string;
+  all_time_total: string;
+  daily: DailySales[];
 }
 
 export interface CashRegisterState {

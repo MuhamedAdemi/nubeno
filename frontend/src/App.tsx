@@ -5,7 +5,9 @@ import { OrderPage } from "./pages/OrderPage";
 import { PrintReceiptPage } from "./pages/PrintReceiptPage";
 import { KitchenPrintPage } from "./pages/KitchenPrintPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
+import { CashRegisterPage } from "./pages/CashRegisterPage";
 import { RequireAuth } from "./auth/RequireAuth";
+import { RequireAdmin } from "./auth/RequireAdmin";
 
 export default function App() {
   return (
@@ -46,8 +48,16 @@ export default function App() {
       <Route
         path="/analytics"
         element={
-          <RequireAuth>
+          <RequireAdmin>
             <AnalyticsPage />
+          </RequireAdmin>
+        }
+      />
+      <Route
+        path="/cash-register"
+        element={
+          <RequireAuth>
+            <CashRegisterPage />
           </RequireAuth>
         }
       />

@@ -141,13 +141,16 @@ class OrderCancelView(APIView):
 
 
 class AnalyticsView(APIView):
-    """Sales totals. Counted per paid *item* (not per closed order), since a
-    split-payment order can stay open for a while with some items already
-    paid and others not.
+    """Sales totals for admins only — daily breakdown plus
+    today/week/month/all-time summaries. Counted per paid *item* (not per
+    closed order), since a split-payment order can stay open for a while
+    with some items already paid and others not.
 
-    Any signed-in staff (waiters included) can call this and gets today's
-    total only — the owner wanted waiters able to check today's turnover.
-    Admins additionally get week/month/all-time and the daily breakdown."""
+    Waiters get today's turnover from CashRegisterView instead (alongside
+    the cash/card split) — this view stays admin-only for the historical,
+    multi-day view."""
+
+    permission_classes = [IsAdminUser]
 
     def get(self, request):
         line_total = ExpressionWrapper(
@@ -156,10 +159,6 @@ class AnalyticsView(APIView):
         paid_items = OrderItem.objects.filter(is_paid=True)
 
         today = timezone.localdate()
-
-        if not request.user.is_staff:
-            today_total = paid_items.filter(paid_at__date=today).aggregate(total=Sum(line_total))["total"] or Decimal("0.00")
-            return Response({"today_total": str(today_total)})
 
         daily = list(
             paid_items.annotate(day=TruncDate("paid_at"))

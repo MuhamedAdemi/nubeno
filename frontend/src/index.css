@@ -272,6 +272,9 @@ input {
   justify-content: center;
   gap: 4px;
   font-weight: 700;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
 }
 
 .table-tile.free {
@@ -284,6 +287,39 @@ input {
   background: rgba(217, 83, 79, 0.18);
   border-color: var(--red);
   color: var(--text);
+}
+
+.table-tile.selected-for-transfer {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232, 147, 95, 0.35);
+}
+
+.table-transfer-handle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+}
+
+.transfer-hint-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--luceed-teal);
+  color: white;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 12px;
+  font-size: 14px;
 }
 
 .table-number {

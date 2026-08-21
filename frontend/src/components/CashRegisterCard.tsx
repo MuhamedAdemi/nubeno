@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { useLang } from "../i18n/LangContext";
+import { useAuth } from "../auth/AuthContext";
 
 function formatEuro(value: string): string {
   return `${Number(value).toFixed(2)} €`;
@@ -9,6 +10,7 @@ function formatEuro(value: string): string {
 
 export function CashRegisterCard() {
   const { t } = useLang();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [floatInput, setFloatInput] = useState("");
 
@@ -26,8 +28,6 @@ export function CashRegisterCard() {
 
   return (
     <div className="cash-register-card">
-      <h2 className="daily-breakdown-title">{t("cash_register")}</h2>
-
       <div className="stat-tile-row">
         <div className="stat-tile">
           <span className="stat-tile-label">{t("starting_float")}</span>
@@ -55,26 +55,28 @@ export function CashRegisterCard() {
         </div>
       </div>
 
-      <form
-        className="cash-register-set-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (floatInput) setFloatMutation.mutate(floatInput);
-        }}
-      >
-        <input
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          placeholder="100.00"
-          value={floatInput}
-          onChange={(e) => setFloatInput(e.target.value)}
-        />
-        <button className="btn btn-primary" type="submit" disabled={!floatInput || setFloatMutation.isPending}>
-          {t("set_float")}
-        </button>
-      </form>
+      {user?.is_admin && (
+        <form
+          className="cash-register-set-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (floatInput) setFloatMutation.mutate(floatInput);
+          }}
+        >
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            min="0"
+            placeholder="100.00"
+            value={floatInput}
+            onChange={(e) => setFloatInput(e.target.value)}
+          />
+          <button className="btn btn-primary" type="submit" disabled={!floatInput || setFloatMutation.isPending}>
+            {t("set_float")}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
