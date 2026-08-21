@@ -76,7 +76,15 @@ class OrderItemDetailView(APIView):
 class OrderPayView(APIView):
     """Pays either the given item_ids (a split/partial payment) or, if none
     are given, every currently-unpaid item on the order. Once every item on
-    the order is paid, the order itself auto-closes and the table frees up."""
+    the order is paid, the order itself auto-closes and the table frees up.
+
+    Every paid item gets a cash_portion (how much of *that item's*
+    line_total was cash) regardless of payment_method — CASH -> the whole
+    line_total, CARD -> zero, MIXED -> a share of the entered cash_amount
+    proportional to the item's share of the batch, with the last item
+    absorbing the rounding remainder so the shares always sum exactly to
+    cash_amount. This lets CashRegisterView sum one field for all three
+    payment methods instead of branching on payment_method."""
 
     def post(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
@@ -91,13 +99,45 @@ class OrderPayView(APIView):
         payment_method = serializer.validated_data["payment_method"]
 
         unpaid = order.items.filter(is_paid=False)
-        items_to_pay = unpaid.filter(id__in=[i.id for i in requested_items]) if requested_items else unpaid
+        items_to_pay = list(
+            (unpaid.filter(id__in=[i.id for i in requested_items]) if requested_items else unpaid)
+        )
 
-        paid_item_ids = list(items_to_pay.values_list("id", flat=True))
-        if not paid_item_ids:
+        if not items_to_pay:
             return Response({"detail": "Nothing to pay."}, status=status.HTTP_400_BAD_REQUEST)
 
-        items_to_pay.update(is_paid=True, paid_at=timezone.now(), payment_method=payment_method)
+        batch_total = sum((item.line_total for item in items_to_pay), Decimal("0.00"))
+
+        if payment_method == "CASH":
+            for item in items_to_pay:
+                item.cash_portion = item.line_total
+        elif payment_method == "CARD":
+            for item in items_to_pay:
+                item.cash_portion = Decimal("0.00")
+        else:  # MIXED
+            cash_amount = serializer.validated_data["cash_amount"]
+            if cash_amount > batch_total:
+                return Response(
+                    {"detail": "Cash amount can't exceed the total being paid."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            allocated = Decimal("0.00")
+            for item in items_to_pay[:-1]:
+                share = (
+                    (item.line_total / batch_total * cash_amount).quantize(Decimal("0.01"))
+                    if batch_total
+                    else Decimal("0.00")
+                )
+                item.cash_portion = share
+                allocated += share
+            items_to_pay[-1].cash_portion = cash_amount - allocated
+
+        now = timezone.now()
+        for item in items_to_pay:
+            item.is_paid = True
+            item.paid_at = now
+            item.payment_method = payment_method
+        OrderItem.objects.bulk_update(items_to_pay, ["is_paid", "paid_at", "payment_method", "cash_portion"])
 
         if not order.items.filter(is_paid=False).exists():
             order.status = "PAID"
@@ -105,7 +145,7 @@ class OrderPayView(APIView):
             order.save(update_fields=["status", "closed_at"])
 
         response_data = OrderSerializer(order).data
-        response_data["paid_item_ids"] = paid_item_ids
+        response_data["paid_item_ids"] = [item.id for item in items_to_pay]
         return Response(response_data)
 
 
@@ -212,11 +252,13 @@ class CashRegisterView(APIView):
         if since:
             paid_since = paid_since.filter(paid_at__gte=since)
 
-        def total_for(method):
-            return paid_since.filter(payment_method=method).aggregate(total=Sum(line_total))["total"] or Decimal("0.00")
-
-        cash_total = total_for("CASH")
-        card_total = total_for("CARD")
+        # cash_portion is set on every paid item regardless of payment_method
+        # (see OrderPayView) — CASH/CARD/MIXED all reduce to the same sum.
+        totals = paid_since.aggregate(
+            cash=Sum("cash_portion"), grand_total=Sum(line_total)
+        )
+        cash_total = totals["cash"] or Decimal("0.00")
+        card_total = (totals["grand_total"] or Decimal("0.00")) - cash_total
 
         data = {
             "float_amount": float_amount,

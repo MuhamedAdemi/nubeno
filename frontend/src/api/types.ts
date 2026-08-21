@@ -42,7 +42,7 @@ export interface Table {
   open_order_total: string | null;
 }
 
-export type PaymentMethod = "CASH" | "CARD";
+export type PaymentMethod = "CASH" | "CARD" | "MIXED";
 
 export interface OrderItem {
   id: number;

@@ -122,6 +122,16 @@ class PayItemsSerializer(serializers.Serializer):
         queryset=OrderItem.objects.all(), many=True, required=False, default=list
     )
     payment_method = serializers.ChoiceField(choices=OrderItem.PAYMENT_METHOD_CHOICES)
+    # Only meaningful (and required) for MIXED — how much of this payment was
+    # cash; the rest is treated as card. Validated against the actual total
+    # being paid in the view, since that total isn't known until item_ids is
+    # resolved against the order.
+    cash_amount = serializers.DecimalField(max_digits=8, decimal_places=2, required=False, min_value=0)
+
+    def validate(self, data):
+        if data["payment_method"] == "MIXED" and "cash_amount" not in data:
+            raise serializers.ValidationError({"cash_amount": "Required when payment_method is MIXED."})
+        return data
 
 
 class TransferOrderSerializer(serializers.Serializer):

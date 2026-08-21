@@ -43,7 +43,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    PAYMENT_METHOD_CHOICES = [("CASH", "Cash"), ("CARD", "Card")]
+    PAYMENT_METHOD_CHOICES = [("CASH", "Cash"), ("CARD", "Card"), ("MIXED", "Card + Cash")]
 
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
     menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT)
@@ -56,8 +56,15 @@ class OrderItem(models.Model):
     # Null for items paid before this field existed — every payment from now
     # on always sets it (required in PayItemsSerializer).
     payment_method = models.CharField(
-        max_length=4, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True
+        max_length=5, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True
     )
+    # How much of this item's line_total was cash. Always set alongside
+    # payment_method (line_total for CASH, 0 for CARD, a split amount for
+    # MIXED) so cash-register reporting can sum this one field regardless of
+    # which of the three payment_method values was used — see
+    # CashRegisterView, which sums cash_portion for the cash total and
+    # (line_total - cash_portion) for the card total.
+    cash_portion = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
 
     class Meta:
         ordering = ["created_at"]

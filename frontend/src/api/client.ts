@@ -74,10 +74,19 @@ export const api = {
     }),
   deleteOrderItem: (orderId: number, itemId: number) =>
     apiFetch<import("./types").Order>(`/api/orders/${orderId}/items/${itemId}/`, { method: "DELETE" }),
-  payOrder: (orderId: number, itemIds: number[] | undefined, paymentMethod: import("./types").PaymentMethod) =>
+  payOrder: (
+    orderId: number,
+    itemIds: number[] | undefined,
+    paymentMethod: import("./types").PaymentMethod,
+    cashAmount?: number
+  ) =>
     apiFetch<import("./types").PayResult>(`/api/orders/${orderId}/pay/`, {
       method: "POST",
-      body: JSON.stringify({ item_ids: itemIds ?? [], payment_method: paymentMethod }),
+      body: JSON.stringify({
+        item_ids: itemIds ?? [],
+        payment_method: paymentMethod,
+        ...(cashAmount !== undefined ? { cash_amount: cashAmount } : {}),
+      }),
     }),
   cancelOrder: (orderId: number) =>
     apiFetch<import("./types").Order>(`/api/orders/${orderId}/cancel/`, { method: "POST" }),

@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Order, OrderItem, PaymentMethod } from "../api/types";
+import type { Order, OrderItem } from "../api/types";
 import { itemName } from "../api/types";
 import { useLang } from "../i18n/LangContext";
 import { useAuth } from "../auth/AuthContext";
-import { PaymentMethodModal } from "./PaymentMethodModal";
 
 interface Props {
   order: Order;
   onDeleteItem: (itemId: number) => void;
   onEditItem: (item: OrderItem) => void;
-  onPay: (itemIds: number[], paymentMethod: PaymentMethod) => void;
+  onPayClick: (itemIds: number[], total: number) => void;
   onCancelOrder: () => void;
   onPrintKitchen: () => void;
   onTransferClick: () => void;
@@ -21,7 +20,7 @@ export function CartPanel({
   order,
   onDeleteItem,
   onEditItem,
-  onPay,
+  onPayClick,
   onCancelOrder,
   onPrintKitchen,
   onTransferClick,
@@ -31,7 +30,6 @@ export function CartPanel({
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<Set<number>>(new Set());
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const unpaidItems = order.items.filter((item) => !item.is_paid);
   const selectedItems = unpaidItems.filter((item) => selected.has(item.id));
@@ -45,12 +43,6 @@ export function CartPanel({
       else next.add(itemId);
       return next;
     });
-  }
-
-  function handleChoosePaymentMethod(method: PaymentMethod) {
-    onPay(selectedItems.map((item) => item.id), method);
-    setSelected(new Set());
-    setShowPaymentModal(false);
   }
 
   // Non-destructive: shows the same nice on-screen bill without paying or
@@ -137,7 +129,7 @@ export function CartPanel({
         </button>
         <button
           className="btn btn-primary btn-lg"
-          onClick={() => setShowPaymentModal(true)}
+          onClick={() => onPayClick(payTotal.map((item) => item.id), payAmount)}
           disabled={busy || unpaidItems.length === 0}
         >
           {selectedItems.length > 0 ? `${t("pay_selected")} (${payAmount.toFixed(2)} €)` : `${t("pay")} (${payAmount.toFixed(2)} €)`}
@@ -149,10 +141,6 @@ export function CartPanel({
           {t("cancel_order")}
         </button>
       </div>
-
-      {showPaymentModal && (
-        <PaymentMethodModal onClose={() => setShowPaymentModal(false)} onChoose={handleChoosePaymentMethod} />
-      )}
     </aside>
   );
 }

@@ -10,6 +10,7 @@ import { ModifierModal } from "../components/ModifierModal";
 import { CartPanel } from "../components/CartPanel";
 import { DraftCartPanel, type DraftItem } from "../components/DraftCartPanel";
 import { TransferTableModal } from "../components/TransferTableModal";
+import { PaymentMethodModal } from "../components/PaymentMethodModal";
 
 let draftKeyCounter = 0;
 
@@ -18,6 +19,11 @@ type ModalState =
   | { mode: "edit-registered"; item: MenuItem; orderItem: OrderItem }
   | { mode: "edit-draft"; item: MenuItem; draftItem: DraftItem }
   | null;
+
+interface PendingPayment {
+  itemIds: number[];
+  total: number;
+}
 
 export function OrderPage() {
   const { tableId } = useParams();
@@ -29,6 +35,7 @@ export function OrderPage() {
   const [modalState, setModalState] = useState<ModalState>(null);
   const [draftItems, setDraftItems] = useState<DraftItem[]>([]);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(null);
 
   const { data: tables } = useQuery({ queryKey: ["tables"], queryFn: api.getTables, refetchInterval: 5000 });
   const table = tables?.find((tb) => tb.id === Number(tableId));
@@ -81,8 +88,15 @@ export function OrderPage() {
   });
 
   const payMutation = useMutation({
-    mutationFn: ({ itemIds, paymentMethod }: { itemIds: number[]; paymentMethod: PaymentMethod }) =>
-      api.payOrder(table!.open_order_id!, itemIds, paymentMethod),
+    mutationFn: ({
+      itemIds,
+      paymentMethod,
+      cashAmount,
+    }: {
+      itemIds: number[];
+      paymentMethod: PaymentMethod;
+      cashAmount?: number;
+    }) => api.payOrder(table!.open_order_id!, itemIds, paymentMethod, cashAmount),
     onSuccess: (result) => {
       invalidateOrder();
       navigate(`/orders/${result.id}/print?items=${result.paid_item_ids.join(",")}`);
@@ -198,6 +212,9 @@ export function OrderPage() {
         </button>
         <div className="header-actions">
           <LanguageSwitcher />
+          <button className="btn btn-ghost" onClick={() => navigate("/cash-register")}>
+            {t("cash_register")}
+          </button>
         </div>
       </header>
 
@@ -225,7 +242,7 @@ export function OrderPage() {
             onEditItem={(orderItem) =>
               setModalState({ mode: "edit-registered", item: orderItem.menu_item, orderItem })
             }
-            onPay={(itemIds, paymentMethod) => payMutation.mutate({ itemIds, paymentMethod })}
+            onPayClick={(itemIds, total) => setPendingPayment({ itemIds, total })}
             onCancelOrder={() => {
               if (confirm(t("confirm_cancel"))) cancelMutation.mutate();
             }}
@@ -299,6 +316,17 @@ export function OrderPage() {
           onClose={() => setShowTransfer(false)}
           onSelect={(destinationTableId) => {
             if (confirm(t("confirm_transfer"))) transferMutation.mutate(destinationTableId);
+          }}
+        />
+      )}
+
+      {pendingPayment && (
+        <PaymentMethodModal
+          total={pendingPayment.total}
+          onClose={() => setPendingPayment(null)}
+          onChoose={(paymentMethod, cashAmount) => {
+            payMutation.mutate({ itemIds: pendingPayment.itemIds, paymentMethod, cashAmount });
+            setPendingPayment(null);
           }}
         />
       )}
