@@ -149,6 +149,7 @@ class CashRegisterStateSerializer(serializers.Serializer):
     set_by_username = serializers.CharField(allow_null=True)
     cash_total = serializers.DecimalField(max_digits=10, decimal_places=2)
     card_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    today_total = serializers.DecimalField(max_digits=10, decimal_places=2)
     expected_cash = serializers.DecimalField(max_digits=10, decimal_places=2)
 
 

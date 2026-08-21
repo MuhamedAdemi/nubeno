@@ -49,6 +49,10 @@ export function CashRegisterCard() {
           <span className="stat-tile-label">{t("card_total")}</span>
           <span className="stat-tile-value">{formatEuro(data.card_total)}</span>
         </div>
+        <div className="stat-tile">
+          <span className="stat-tile-label">{t("today_total")}</span>
+          <span className="stat-tile-value">{formatEuro(data.today_total)}</span>
+        </div>
         <div className="stat-tile stat-tile-accent">
           <span className="stat-tile-label">{t("expected_cash")}</span>
           <span className="stat-tile-value">{formatEuro(data.expected_cash)}</span>

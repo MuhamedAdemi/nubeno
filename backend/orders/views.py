@@ -1,7 +1,7 @@
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 from decimal import Decimal
 
-from django.db.models import Count, DecimalField, ExpressionWrapper, F, Sum
+from django.db.models import Count, DateTimeField, DecimalField, ExpressionWrapper, F, Sum
 from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -12,6 +12,25 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import CashRegisterEntry, Order, OrderItem
+
+# The restaurant's "day" rolls over at 7am, not midnight — a payment made
+# at 1am is still last night's business, and bucketing it into the next
+# calendar day was confusing reconciliation. Shifting by a fixed real-world
+# duration before any local-time truncation keeps this correct across DST:
+# the shift itself is timezone-naive (always exactly 7 hours), and Django's
+# TruncDate/localtime conversion handles the local wall-clock date after
+# that shift.
+BUSINESS_DAY_START_HOUR = 7
+
+
+def business_date(dt):
+    return (timezone.localtime(dt) - timedelta(hours=BUSINESS_DAY_START_HOUR)).date()
+
+
+def business_day_start(date):
+    """The UTC-aware instant when the given business day began (that date
+    at 07:00 local time)."""
+    return timezone.make_aware(datetime.combine(date, time(hour=BUSINESS_DAY_START_HOUR)))
 from .serializers import (
     AddOrderItemSerializer,
     CashRegisterStateSerializer,
@@ -198,10 +217,17 @@ class AnalyticsView(APIView):
         )
         paid_items = OrderItem.objects.filter(is_paid=True)
 
-        today = timezone.localdate()
+        today = business_date(timezone.now())
 
+        # Shift each paid_at back by the business-day start offset before
+        # truncating to date, so a 1am payment still counts as the previous
+        # business day instead of the next calendar day.
+        shifted = ExpressionWrapper(
+            F("paid_at") - timedelta(hours=BUSINESS_DAY_START_HOUR), output_field=DateTimeField()
+        )
         daily = list(
-            paid_items.annotate(day=TruncDate("paid_at"))
+            paid_items.annotate(shifted_at=shifted)
+            .annotate(day=TruncDate("shifted_at"))
             .values("day")
             .annotate(total=Sum(line_total), order_count=Count("order", distinct=True))
             .order_by("-day")[:60]
@@ -231,9 +257,16 @@ class AnalyticsView(APIView):
 
 
 class CashRegisterView(APIView):
-    """The till float ('polog') plus cash/card totals taken in since it was
-    last set — anyone signed in can view it (a waiter should be able to
-    check it), but only an admin can set a new float (POST)."""
+    """The till float ('polog') plus today's cash/card totals — anyone
+    signed in can view it (a waiter should be able to check it), but only
+    an admin can set a new float (POST).
+
+    The float persists across days (it's the fixed change-drawer baseline,
+    not a daily reset), but the cash/card totals shown are scoped to the
+    current *business day* (see business_date/business_day_start above) —
+    the owner wanted "everything for the current day," on the assumption
+    the previous day's cash is already removed/reconciled by the time a new
+    business day starts."""
 
     def get_permissions(self):
         if self.request.method == "POST":
@@ -243,29 +276,29 @@ class CashRegisterView(APIView):
     def get(self, request):
         latest = CashRegisterEntry.objects.select_related("set_by").first()
         float_amount = latest.float_amount if latest else Decimal("0.00")
-        since = latest.set_at if latest else None
+
+        today = business_date(timezone.now())
+        day_start = business_day_start(today)
 
         line_total = ExpressionWrapper(
             F("unit_price") * F("quantity"), output_field=DecimalField(max_digits=10, decimal_places=2)
         )
-        paid_since = OrderItem.objects.filter(is_paid=True)
-        if since:
-            paid_since = paid_since.filter(paid_at__gte=since)
+        paid_today = OrderItem.objects.filter(is_paid=True, paid_at__gte=day_start)
 
         # cash_portion is set on every paid item regardless of payment_method
         # (see OrderPayView) — CASH/CARD/MIXED all reduce to the same sum.
-        totals = paid_since.aggregate(
-            cash=Sum("cash_portion"), grand_total=Sum(line_total)
-        )
+        totals = paid_today.aggregate(cash=Sum("cash_portion"), grand_total=Sum(line_total))
         cash_total = totals["cash"] or Decimal("0.00")
-        card_total = (totals["grand_total"] or Decimal("0.00")) - cash_total
+        grand_total = totals["grand_total"] or Decimal("0.00")
+        card_total = grand_total - cash_total
 
         data = {
             "float_amount": float_amount,
-            "set_at": since,
+            "set_at": latest.set_at if latest else None,
             "set_by_username": latest.set_by.username if latest and latest.set_by else None,
             "cash_total": cash_total,
             "card_total": card_total,
+            "today_total": grand_total,
             "expected_cash": float_amount + cash_total,
         }
         return Response(CashRegisterStateSerializer(data).data)

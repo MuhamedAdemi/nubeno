@@ -93,6 +93,7 @@ export interface CashRegisterState {
   set_by_username: string | null;
   cash_total: string;
   card_total: string;
+  today_total: string;
   expected_cash: string;
 }
 

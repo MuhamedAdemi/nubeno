@@ -103,6 +103,7 @@ export const translations = {
   starting_float: { hr: "Početni polog", en: "Starting float", sq: "Pollogu Fillestar" },
   set_float: { hr: "Postavi polog", en: "Set float", sq: "Vendos pollogun" },
   expected_cash: { hr: "Očekivana gotovina", en: "Expected cash", sq: "Gotovina e Pritur" },
+  today_total: { hr: "Ukupno danas", en: "Today's total", sq: "Totali i Ditës" },
   cash_total: { hr: "Gotovina (danas)", en: "Cash total", sq: "Total Gotovinë" },
   card_total: { hr: "Kartica (danas)", en: "Card total", sq: "Total Kartelë" },
   float_set_by: { hr: "Postavio", en: "Set by", sq: "Vendosur nga" },
