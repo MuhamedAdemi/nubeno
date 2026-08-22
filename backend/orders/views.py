@@ -12,6 +12,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import CashRegisterEntry, Order, OrderItem
+from .serializers import (
+    AddOrderItemSerializer,
+    CashRegisterStateSerializer,
+    OrderSerializer,
+    PayItemsSerializer,
+    SetCashFloatSerializer,
+    TransferOrderSerializer,
+    UpdateOrderItemSerializer,
+)
 
 # The restaurant's "day" rolls over at 7am, not midnight — a payment made
 # at 1am is still last night's business, and bucketing it into the next
@@ -31,15 +40,16 @@ def business_day_start(date):
     """The UTC-aware instant when the given business day began (that date
     at 07:00 local time)."""
     return timezone.make_aware(datetime.combine(date, time(hour=BUSINESS_DAY_START_HOUR)))
-from .serializers import (
-    AddOrderItemSerializer,
-    CashRegisterStateSerializer,
-    OrderSerializer,
-    PayItemsSerializer,
-    SetCashFloatSerializer,
-    TransferOrderSerializer,
-    UpdateOrderItemSerializer,
-)
+
+
+def clear_table_location_note(table):
+    """A helper table's location_note ("which physical table is this
+    standing in for") only makes sense for the order it was set during —
+    clear it whenever that order stops being open (paid, cancelled, or
+    transferred away), so the next use of the helper table starts blank."""
+    if table.location_note:
+        table.location_note = ""
+        table.save(update_fields=["location_note"])
 
 
 class OrderDetailView(RetrieveAPIView):
@@ -162,6 +172,7 @@ class OrderPayView(APIView):
             order.status = "PAID"
             order.closed_at = timezone.now()
             order.save(update_fields=["status", "closed_at"])
+            clear_table_location_note(order.table)
 
         response_data = OrderSerializer(order).data
         response_data["paid_item_ids"] = [item.id for item in items_to_pay]
@@ -181,8 +192,10 @@ class OrderTransferView(APIView):
             )
         serializer = TransferOrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        old_table = order.table
         order.table = serializer.validated_data["table"]
         order.save(update_fields=["table"])
+        clear_table_location_note(old_table)
         return Response(OrderSerializer(order).data)
 
 
@@ -196,6 +209,7 @@ class OrderCancelView(APIView):
         order.status = "CANCELLED"
         order.closed_at = timezone.now()
         order.save(update_fields=["status", "closed_at"])
+        clear_table_location_note(order.table)
         return Response(OrderSerializer(order).data)
 
 

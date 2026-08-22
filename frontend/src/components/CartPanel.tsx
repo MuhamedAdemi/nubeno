@@ -109,7 +109,7 @@ export function CartPanel({
       </ul>
 
       <div className="cart-summary-bar">
-        <span className="cart-summary-table">{t("table")} {order.table_number}</span>
+        <span className="cart-summary-table">{order.table_label || `${t("table")} ${order.table_number}`}</span>
         {user?.initials && <span className="cart-summary-waiter">{user.initials}</span>}
         <span className="cart-summary-total">{Number(order.total).toFixed(2)} €</span>
       </div>

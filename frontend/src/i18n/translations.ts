@@ -113,6 +113,17 @@ export const translations = {
     sq: "Askush ende s'e ka vendosur pollogun",
   },
   cancel: { hr: "Odustani", en: "Cancel", sq: "Anulo" },
+  helper_tables_title: { hr: "Pomoćni stolovi", en: "Helper tables", sq: "Tavolina Ndihmëse" },
+  helper_tables_hint: {
+    hr: "Za kada treba više računa nego stolova — koristi F1-F10 i označi za koji stvarni stol su.",
+    en: "For when you need more bills than physical tables — use F1-F10 and note which real table each is for.",
+    sq: "Për kur duhen më shumë fatura sesa tavolina — përdor F1-F10 dhe shëno për cilën tavolinë reale janë.",
+  },
+  location_prompt: {
+    hr: "Za koji stvarni stol je ovo? (npr. Stol 3)",
+    en: "Which real table is this for? (e.g. Table 3)",
+    sq: "Për cilën tavolinë reale është kjo? (p.sh. Tavolina 3)",
+  },
   pick_destination_table: {
     hr: "Odaberi slobodan stol za premještanje",
     en: "Pick a free table to move it to",

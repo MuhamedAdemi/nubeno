@@ -36,6 +36,8 @@ class OrderSerializer(serializers.ModelSerializer):
     total = serializers.DecimalField(max_digits=8, decimal_places=2, read_only=True)
     remaining_total = serializers.DecimalField(max_digits=8, decimal_places=2, read_only=True)
     table_number = serializers.IntegerField(source="table.number", read_only=True)
+    table_label = serializers.CharField(source="table.label", read_only=True)
+    table_location_note = serializers.CharField(source="table.location_note", read_only=True)
 
     class Meta:
         model = Order
@@ -43,6 +45,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "id",
             "table",
             "table_number",
+            "table_label",
+            "table_location_note",
             "status",
             "opened_by",
             "opened_at",

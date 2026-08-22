@@ -222,6 +222,7 @@ export function OrderPage() {
         {table && !isRegistered && (
           <DraftCartPanel
             tableNumber={table.number}
+            tableLabel={table.label}
             items={draftItems}
             busy={busy}
             onDeleteItem={(key) => setDraftItems((prev) => prev.filter((i) => i.key !== key))}

@@ -322,6 +322,32 @@ input {
   font-size: 14px;
 }
 
+.table-location-handle {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
+}
+
+.table-location-note {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+  text-align: center;
+  padding: 0 6px;
+}
+
+.helper-tables-title {
+  margin-top: 28px;
+}
+
 .table-number {
   font-size: 18px;
 }
@@ -923,6 +949,23 @@ input {
 .receipt-meta {
   font-weight: 700;
   font-size: 13px;
+}
+
+.receipt-location-note {
+  font-weight: 800;
+  font-size: 20px;
+  text-align: center;
+  border: 2px solid black;
+  padding: 4px;
+  margin-top: 4px;
+}
+
+.receipt-section-label {
+  font-weight: 800;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 6px 0;
 }
 
 .receipt hr {

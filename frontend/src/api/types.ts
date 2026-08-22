@@ -23,6 +23,7 @@ export interface MenuItem {
   variant_label: string;
   price: string;
   modifier_group: ModifierGroup | null;
+  category_group: "FOOD" | "DRINK";
 }
 
 export interface Category {
@@ -37,6 +38,9 @@ export interface Category {
 export interface Table {
   id: number;
   number: number;
+  label: string;
+  is_helper: boolean;
+  location_note: string;
   status: "FREE" | "OCCUPIED";
   open_order_id: number | null;
   open_order_total: string | null;
@@ -60,6 +64,8 @@ export interface Order {
   id: number;
   table: number;
   table_number: number;
+  table_label: string;
+  table_location_note: string;
   status: "OPEN" | "PAID" | "CANCELLED";
   opened_by: number | null;
   opened_at: string;

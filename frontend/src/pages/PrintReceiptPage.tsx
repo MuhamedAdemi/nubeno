@@ -49,7 +49,7 @@ export function PrintReceiptPage() {
       <div className="receipt">
         <div className="receipt-header">
           <div>
-            {t("table")} {order.table_number} — #{order.id}
+            {order.table_label || `${t("table")} ${order.table_number}`} — #{order.id}
           </div>
           <div className="receipt-date">{new Date().toLocaleString()}</div>
           <div className="receipt-meta">{user?.initials}</div>

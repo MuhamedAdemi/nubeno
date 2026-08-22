@@ -10,7 +10,16 @@ class TableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Table
-        fields = ["id", "number", "status", "open_order_id", "open_order_total"]
+        fields = [
+            "id",
+            "number",
+            "label",
+            "is_helper",
+            "location_note",
+            "status",
+            "open_order_id",
+            "open_order_total",
+        ]
 
     def get_status(self, obj):
         return "OCCUPIED" if obj.open_order else "FREE"
@@ -22,3 +31,9 @@ class TableSerializer(serializers.ModelSerializer):
     def get_open_order_total(self, obj):
         order = obj.open_order
         return order.remaining_total if order else None
+
+
+class TableLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ["location_note"]

@@ -54,6 +54,11 @@ export const api = {
   getTables: () => apiFetch<import("./types").Table[]>("/api/tables/"),
   openTableOrder: (tableId: number) =>
     apiFetch<import("./types").Order>(`/api/tables/${tableId}/open-order/`, { method: "POST" }),
+  setTableLocation: (tableId: number, locationNote: string) =>
+    apiFetch<import("./types").Table>(`/api/tables/${tableId}/location/`, {
+      method: "PATCH",
+      body: JSON.stringify({ location_note: locationNote }),
+    }),
   getOrder: (orderId: number) => apiFetch<import("./types").Order>(`/api/orders/${orderId}/`),
   addOrderItem: (
     orderId: number,

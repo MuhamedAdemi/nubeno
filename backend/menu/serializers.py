@@ -19,6 +19,9 @@ class ModifierGroupSerializer(serializers.ModelSerializer):
 
 class MenuItemSerializer(serializers.ModelSerializer):
     modifier_group = ModifierGroupSerializer(read_only=True)
+    # Lets the kitchen ticket group drinks separately from food without a
+    # second round-trip — see KitchenPrintPage.tsx.
+    category_group = serializers.CharField(source="category.group", read_only=True)
 
     class Meta:
         model = MenuItem
@@ -30,6 +33,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
             "variant_label",
             "price",
             "modifier_group",
+            "category_group",
         ]
 
 

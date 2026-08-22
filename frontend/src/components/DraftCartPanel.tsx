@@ -13,6 +13,7 @@ export interface DraftItem {
 
 interface Props {
   tableNumber: number;
+  tableLabel: string;
   items: DraftItem[];
   onDeleteItem: (key: string) => void;
   onEditItem: (item: DraftItem) => void;
@@ -20,7 +21,7 @@ interface Props {
   busy: boolean;
 }
 
-export function DraftCartPanel({ tableNumber, items, onDeleteItem, onEditItem, onRegister, busy }: Props) {
+export function DraftCartPanel({ tableNumber, tableLabel, items, onDeleteItem, onEditItem, onRegister, busy }: Props) {
   const { lang, t } = useLang();
   const { user } = useAuth();
 
@@ -72,7 +73,7 @@ export function DraftCartPanel({ tableNumber, items, onDeleteItem, onEditItem, o
       </ul>
 
       <div className="cart-summary-bar">
-        <span className="cart-summary-table">{t("table")} {tableNumber}</span>
+        <span className="cart-summary-table">{tableLabel || `${t("table")} ${tableNumber}`}</span>
         {user?.initials && <span className="cart-summary-waiter">{user.initials}</span>}
         <span className="cart-summary-total">{total.toFixed(2)} €</span>
       </div>
