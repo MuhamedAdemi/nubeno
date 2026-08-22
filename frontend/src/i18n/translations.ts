@@ -83,9 +83,9 @@ export const translations = {
   amount: { hr: "Iznos", en: "Amount", sq: "Shuma" },
   view_bill: { hr: "Pogledaj račun", en: "View bill", sq: "Shiko Faturën" },
   choose_payment_method: { hr: "Način plaćanja?", en: "Payment method?", sq: "Mënyra e pagesës?" },
-  cash: { hr: "Gotovina", en: "Cash", sq: "Gotovinë" },
-  card: { hr: "Kartica", en: "Card", sq: "Kartelë" },
-  card_plus_cash: { hr: "Kartica + Gotovina", en: "Card + Cash", sq: "Kartelë + Gotovinë" },
+  cash: { hr: "Gotovina", en: "Cash", sq: "Cash" },
+  card: { hr: "Kartica", en: "Card", sq: "Card" },
+  card_plus_cash: { hr: "Kartica + Gotovina", en: "Card + Cash", sq: "EUR" },
   cash_amount_label: {
     hr: "Koliko je gotovinom?",
     en: "How much was cash?",
@@ -104,8 +104,8 @@ export const translations = {
   set_float: { hr: "Postavi polog", en: "Set float", sq: "Vendos pollogun" },
   expected_cash: { hr: "Očekivana gotovina", en: "Expected cash", sq: "Gotovina e Pritur" },
   today_total: { hr: "Ukupno danas", en: "Today's total", sq: "Totali i Ditës" },
-  cash_total: { hr: "Gotovina (danas)", en: "Cash total", sq: "Total Gotovinë" },
-  card_total: { hr: "Kartica (danas)", en: "Card total", sq: "Total Kartelë" },
+  cash_total: { hr: "Gotovina (danas)", en: "Cash total", sq: "Total Cash" },
+  card_total: { hr: "Kartica (danas)", en: "Card total", sq: "Total Card" },
   float_set_by: { hr: "Postavio", en: "Set by", sq: "Vendosur nga" },
   no_float_set: {
     hr: "Nitko još nije postavio polog",
